@@ -1,0 +1,30 @@
+SET passphrase='TWFza21lYXNpYW1wYXlyb2xsZGF0YQ==';
+INSERT INTO DEV_DB_FINANCE.SCH_FINANCE_STG.TBL_SALARY (
+            EMP_ID,
+            EMP_NAME,
+            SAL_MONTH,
+            BUS_UNIT,
+            CREDIT_DATE,
+            GROSS_SAL,
+            INCENTIVE,
+            TAX,
+            TOTAL_SALARY,
+            SRC_FILE_NAME,
+            INGESTED_ON
+            )  (select 
+                t.$1,
+                t.$2,
+                t.$3,
+                t.$4,
+                t.$5,
+                TO_VARCHAR(ENCRYPT(t.$6, $passphrase)) GROSS_SAL,
+                TO_VARCHAR(ENCRYPT(t.$7, $passphrase)) INCENTIVE,
+                TO_VARCHAR(ENCRYPT(t.$8, $passphrase)) TAX,
+                TO_VARCHAR(ENCRYPT(t.$9, $passphrase)) TOTAL_SALARY,
+                METADATA$FILENAME,
+                sysdate()
+                FROM  '@DEV_DB_FINANCE.SCH_FINANCE_STG.EXT_STAGE' t)
+                    
+select * from DEV_DB_FINANCE.SCH_FINANCE_STG.TBL_SALARY;
+
+Truncate table DEV_DB_FINANCE.SCH_FINANCE_STG.TBL_SALARY

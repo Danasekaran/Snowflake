@@ -1,0 +1,72 @@
+// Create storage integration object
+create or replace storage integration s3_sourcedata_integration
+  TYPE = EXTERNAL_STAGE
+  STORAGE_PROVIDER = S3
+  ENABLED = TRUE 
+  STORAGE_AWS_ROLE_ARN = 'arn:aws:iam::599053284073:role/role-snowflake-access'
+  STORAGE_ALLOWED_LOCATIONS = ('s3://bucket-source-data/snowpipe_data/')
+  COMMENT = 'storage integration for bucket-source-data' ;
+
+
+  DESC integration s3_sourcedata_integration;
+-----------------------------------------------------------------------------------------------
+
+
+// Create file format object
+CREATE OR REPLACE file format DEV_DB_SALES.DEV_SALES_SCH_STG.csv_file
+    type = csv
+    field_delimiter = ','
+    skip_header = 1
+    null_if = ('NULL','null')
+    empty_field_as_null = TRUE
+    FIELD_OPTIONALLY_ENCLOSED_BY = '"';
+-----------------------------------------------------------------------------------------------------------
+ // Create stage object with integration object & file format object
+CREATE OR REPLACE stage DEV_DB_SALES.DEV_SALES_SCH_STG.bkt_sales
+    URL = 's3://bucket-source-data/snowpipe_data/sales/'
+    STORAGE_INTEGRATION = s3_sourcedata_integration
+    FILE_FORMAT = DEV_DB_SALES.DEV_SALES_SCH_STG.csv_file
+-----------------------------------------------------------------------------------------------------------
+//Create stg table
+create table DEV_DB_SALES.DEV_SALES_SCH_STG.tbl_sales(
+SalesOrderLineKey	STRING,
+ResellerKey	STRING,
+CustomerKey	STRING,
+ProductKey	STRING,
+OrderDateKey	STRING,
+DueDateKey	STRING,
+ShipDateKey	STRING,
+SalesTerritoryKey	STRING,
+OrderQuantity	STRING,
+UnitPrice	STRING,
+ExtendedAmount	STRING,
+UnitPriceDiscountPct STRING,	
+ProductStandardCost	STRING,
+TotalProductCost	STRING,
+SalesAmount STRING );
+
+-----------------------------------------------------------------------------------------------------------
+// Use Copy command       
+COPY INTO DEV_DB_SALES.DEV_SALES_SCH_STG.tbl_sales
+    FROM @DEV_DB_SALES.DEV_SALES_SCH_STG.bkt_sales;
+-----------------------------------------------------------------------------------------------------------
+
+SELECT count(1) from DEV_DB_SALES.DEV_SALES_SCH_STG.tbl_sales limit 10;
+
+-----------------------------------------------------------------------------------------------------------
+CREATE OR REPLACE pipe DEV_DB_SALES.DEV_SALES_SCH_STG.pipe_sales
+auto_ingest = TRUE
+AS
+// Use Copy command       
+COPY INTO DEV_DB_SALES.DEV_SALES_SCH_STG.tbl_sales
+    FROM @DEV_DB_SALES.DEV_SALES_SCH_STG.bkt_sales;
+
+list @DEV_DB_SALES.DEV_SALES_SCH_STG.bkt_sales
+
+// Describe pipe
+DESC pipe DEV_DB_SALES.DEV_SALES_SCH_STG.pipe_sales;
+
+alter pipe DEV_DB_SALES.DEV_SALES_SCH_STG.pipe_sales refresh;
+--truncate table DEV_DB_SALES.DEV_SALES_SCH_STG.tbl_sales
+
+

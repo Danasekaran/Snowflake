@@ -1,0 +1,19 @@
+SELECT METADATA$FILENAME, METADATA$FILE_ROW_NUMBER, METADATA$FILE_CONTENT_KEY, METADATA$FILE_LAST_MODIFIED, METADATA$START_SCAN_TIME, t.$1, t.$2 
+FROM '@DEV_DB_SALES.SCH_SALES_STG.EXT_STAGE_ENCRYPTED3' t;
+
+
+create or replace table DEV_DB_SALES.SCH_SALES_RAW.tbl1(srno string,name string)
+
+create or replace stream DEV_DB_SALES.SCH_SALES_RAW.stream1 on TABLE DEV_DB_SALES.SCH_SALES_RAW.tbl1
+
+create or replace table DEV_DB_SALES.SCH_SALES_RAW.tbl2(srno int,name string)
+
+
+select * from DEV_DB_SALES.SCH_SALES_RAW.tbl1;
+
+select * from DEV_DB_SALES.SCH_SALES_RAW.stream1;
+
+insert into DEV_DB_SALES.SCH_SALES_RAW.tbl1 values ('1','dana')
+
+COPY INTO DEV_DB_SALES.SCH_SALES_RAW.tbl3 (srno,name)
+from (select srno,name from DEV_DB_SALES.SCH_SALES_RAW.stream1)

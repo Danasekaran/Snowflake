@@ -1,0 +1,6 @@
+DROP tag DEV_DB_SALES.SCH_SALES_RAW.pii_data;
+alter table DEV_DB_SALES.SCH_SALES_RAW.TBL_EMPLOYEE modify column email set tag DEV_DB_SALES.SCH_SALES_RAW.pii_data='STR_EMAIL';
+alter table DEV_DB_SALES.SCH_SALES_RAW.TBL_CUSTOMER modify column email set tag DEV_DB_SALES.SCH_SALES_RAW.pii_data='STR_EMAIL';
+alter table DEV_DB_SALES.SCH_SALES_RAW.TBL_CUSTOMER modify column city set tag DEV_DB_SALES.SCH_SALES_RAW.pii_data='STR_CITY';
+alter tag DEV_DB_SALES.SCH_SALES_RAW.pii_data unset masking policy DEV_DB_SALES.SCH_SALES_RAW.pii_masking_policy;
+DROP MASKING POLICY DEV_DB_SALES.SCH_SALES_RAW.pii_masking_policy;

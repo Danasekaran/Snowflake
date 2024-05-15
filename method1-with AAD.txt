@@ -1,0 +1,46 @@
+select * from DEV_DB_SALES.SCH_SALES_RAW.TEST;
+
+
+
+select to_varchar(decrypt(TO_BINARY('f961d9f51a709c856794d7593faa3fd9f51ec687311bbea07f358f6fa2d914a0'),'gjSh+R7V31LiktXP0OAhj8sryHaoTKwx7+6LvYB4YGE='),'utf-8' ) as Decrypted_Value;
+
+create TABLE DEV_DB_SALES.SCH_SALES_RAW.tbl_sample_data (
+    SRNO VARCHAR(16777216),
+	NAME VARCHAR(16777216),
+    AAD  VARCHAR(16777216),
+    PASSKEY  VARCHAR(16777216)
+);
+
+SET passphrase='poiuqewjlkfsd';
+
+INSERT INTO DEV_DB_SALES.SCH_SALES_RAW.tbl_sample_data (SRNO,NAME,AAD,PASSKEY) (
+select  
+TO_VARCHAR(ENCRYPT(t.$1, $passphrase, 'danasekaran shanmugam', 'aes-gcm')),
+TO_VARCHAR(ENCRYPT(t.$2, $passphrase, 'danasekaran shanmugam', 'aes-gcm')),
+'danasekaran shanmugam',
+$passphrase
+FROM  '@DEV_DB_SALES.SCH_SALES_STG.EXT_STAGE_ENCRYPTED3' t );
+
+SET passphrase='poiuqewjlkfsd';
+
+
+select 
+to_varchar(decrypt(TO_BINARY(srno), PASSKEY,AAD, 'aes-gcm') ,'utf-8') as srno,
+to_varchar(decrypt(TO_BINARY(name),  PASSKEY,AAD,'aes-gcm') ,'utf-8') as name
+from DEV_DB_SALES.SCH_SALES_RAW.tbl_sample_data;
+
+select * from DEV_DB_SALES.SCH_SALES_RAW.tbl_sample_data;
+
+TRUNCATE TABLE DEV_DB_SALES.SCH_SALES_RAW.tbl_sample_data;
+
+
+SET passphrase='poiuqewjlkfsd';
+SELECT
+    TO_VARCHAR(DECRYPT(ENCRYPT('penicillin', $passphrase, 'John Dough AAD', 'aes-gcm'),$passphrase, 'John Dough AAD', 'aes-gcm'),'utf-8') AS medicine,
+    ENCRYPT('penicillin', $passphrase, 'John Dough AAD', 'aes-gcm') ;
+        
+---------------------------------------------------------------------------------------------------------
+SET passphrase='poiuqewjlkfsd';
+SELECT
+    TO_VARCHAR(DECRYPT(ENCRYPT('penicillin', $passphrase, 'user_name', 'aes-gcm'),$passphrase, 'user_name', 'aes-gcm'),'utf-8') AS medicine,
+    ENCRYPT('penicillin', $passphrase, 'user_name', 'aes-gcm')  ;
